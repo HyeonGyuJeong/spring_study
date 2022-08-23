@@ -7,7 +7,7 @@ public interface DiscountPolicy {
 	/**
 	 * @param member
 	 * @param price
-	 * @return í• ì¸ ëŒ€ìƒ ê¸ˆì•¡
+	 * @return ÇÒÀÎ ´ë»ó ±İ¾×
 	 */
 	int discount(Member member, int price);
 	
