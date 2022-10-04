@@ -31,7 +31,7 @@ public class MemberServiceV2 {
 			con.commit(); // 성공시 커밋
 		} catch (Exception e) {
 			con.rollback(); //실패시 롤백
-			throw new IllegalStateException();
+			throw new IllegalStateException(e);
 		} finally {
 			release(con);
 		}
