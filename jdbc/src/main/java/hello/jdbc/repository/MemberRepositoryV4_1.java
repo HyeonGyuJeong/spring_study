@@ -1,6 +1,7 @@
 package hello.jdbc.repository;
 
 import hello.jdbc.domain.Member;
+import hello.jdbc.repository.ex.MyDbException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -11,17 +12,19 @@ import java.sql.*;
 import java.util.NoSuchElementException;
 
 /**
- * 트랜잭션 - 트랜잭션 매니저
- * DataSourceUtils.getConnection()
- * DataSourceUtils.releaseConnection()
+ * 예외 누수 문제 해결
+ * 체크 예외를 런타임 예외로 변결
+ * MemberRepository 인터페이스 사용
+ * 제거
  */
 @Slf4j
 @RequiredArgsConstructor
-public class MemberRepositoryV3 implements MemberRepositoryEx {
+public class MemberRepositoryV4_1 implements MemberRepository {
 	
 	private final DataSource dataSource;
 
-	public Member save(Member member) throws SQLException {
+	@Override
+	public Member save(Member member) {
 		String sql = "INSERT INTO MEMBER (MEMBER_ID, MONEY) VALUES (?, ?)";
 		
 		Connection con = null;
@@ -37,15 +40,15 @@ public class MemberRepositoryV3 implements MemberRepositoryEx {
 			
 			return member;
 		} catch (SQLException e) {
-			log.error("db error", e);
-			throw e;
+			throw new MyDbException(e);
 		} finally {
 			close(con, pstmt, null);
 		}
 		
 	}
-	
-	public Member findById(String memberId) throws SQLException {
+
+	@Override
+	public Member findById(String memberId) {
 		String sql = "SELECT * FROM MEMBER WHERE MEMBER_ID = ?";
 		
 		Connection con = null;
@@ -67,15 +70,15 @@ public class MemberRepositoryV3 implements MemberRepositoryEx {
 				throw new NoSuchElementException("member not found memberId = " + memberId);
 			}
 		} catch (SQLException e) {
-			log.error("db error", e);
-			throw e;
+			throw new MyDbException(e);
 		} finally {
 			close(con, pstmt, rs);
 		}
 		
 	}
-	
-	public void update(String memberId, int money) throws SQLException {
+
+	@Override
+	public void update(String memberId, int money) {
 		String sql = "UPDATE MEMBER SET MONEY = ? WHERE MEMBER_ID = ?";
 		
 		Connection con = null;
@@ -90,14 +93,14 @@ public class MemberRepositoryV3 implements MemberRepositoryEx {
 			int resultSize = pstmt.executeUpdate();
 			log.info("resultSize={}", resultSize);
 		} catch (SQLException e) {
-			log.error("db error", e);
-			throw e;
+			throw new MyDbException(e);
 		} finally {
 			close(con, pstmt, null);
 		}
 	}
-	
-	public void delete(String memberId) throws SQLException {
+
+	@Override
+	public void delete(String memberId) {
 		String sql = "DELETE FROM MEMBER WHERE MEMBER_ID = ?";
 		
 		Connection con = null;
@@ -110,8 +113,7 @@ public class MemberRepositoryV3 implements MemberRepositoryEx {
 			
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
-			log.error("db error", e);
-			throw e;
+			throw new MyDbException(e);
 		} finally {
 			close(con, pstmt, null);
 		}
@@ -126,7 +128,7 @@ public class MemberRepositoryV3 implements MemberRepositoryEx {
 
 	}
 	
-	private Connection getConnection() throws SQLException {
+	private Connection getConnection() {
 		//주의! 트랜잭션 동기화를 사용하려면 DataSourceUtils를 사용해야 한다.
 		Connection con = DataSourceUtils.getConnection(dataSource);
 		log.info("get connection={}, class={}", con, con.getClass());
