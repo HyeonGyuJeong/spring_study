@@ -36,6 +36,9 @@ public class ContextV1Test {
         log.info("resultTime={}", resultTime);
     }
 
+    /**
+     * 전략 패턴 사용
+     */
     @Test
     void strategyV1() {
         StrategyLogic1 strategyLogic1 = new StrategyLogic1();

@@ -11,7 +11,7 @@ public class FiledLogTrace implements LogTrace {
     private static final String COMPLETE_PREFIX = "<--";
     private static final String EX_PREFIX = "<X-";
 
-    private TraceId traceIdHolder;
+    private TraceId traceIdHolder; //traceId 동기화, 동시성 이슈 발생
 
     @Override
     public TraceStatus begin(String message) {
